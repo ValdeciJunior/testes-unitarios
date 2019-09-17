@@ -6,7 +6,11 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Date;
 
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -16,19 +20,44 @@ import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
+import br.ce.wcaquino.exceptions.LocadoraException;
 import br.ce.wcaquino.utils.DataUtils;
 
 public class LocacaoServiceTest {
+	
+	private LocacaoService service;
+	
 	@Rule
 	public ErrorCollector error = new ErrorCollector();
 	
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 	
+	@Before
+	public void setup() {
+		System.out.println("Before");
+		service = new LocacaoService();
+	}
+	
+	@After
+	public void tearDown() {
+		System.out.println("After");
+	}
+	
+	@BeforeClass
+	public static void setupClass() {
+		System.out.println("Before Class");
+	}
+	
+	@AfterClass
+	public static void tearDownClass() {
+		System.out.println("After Class");
+	}
+	
+	
 	@Test
 	public void testeLocacao() throws Exception {
 		//Cenário
-		LocacaoService service = new LocacaoService();
 		Filme filme = new Filme("A volta dos que não foram", 3, 8.0);
 		
 		Usuario user = new Usuario("Valdeci");
@@ -49,9 +78,7 @@ public class LocacaoServiceTest {
 	public void testeLocacaoFilmeSemEstoque() throws Exception {
 		
 		//Cenário
-		LocacaoService service = new LocacaoService();
 		Filme filme = new Filme("A volta dos que não foram", 0, 8.0);
-		
 		Usuario user = new Usuario("Valdeci");
 		//FIM CENÁRIO
 		
@@ -61,65 +88,32 @@ public class LocacaoServiceTest {
 	}
 	
 	@Test
-	public void testeLocacaoFilmeSemEstoque2(){
-		
+	public void testLocacaoUsuarioVazio() throws FilmeSemEstoqueException {
 		//Cenário
-		LocacaoService service = new LocacaoService();
-		Filme filme = new Filme("A volta dos que não foram", 0, 8.0);
-		
-		Usuario user = new Usuario("Valdeci");
-		//FIM CENÁRIO
+		Filme filme = new Filme("A volta dos que não foram", 2, 8.0);
 		
 		//Ação
 		try {
-			service.alugarFilme(user, filme);
-			Assert.fail("Deveria ter lançado uma exceção");
-		} catch (Exception e) {
-			assertThat(e.getMessage(), is("Filme sem estoque"));
+			service.alugarFilme(null, filme);
+			Assert.fail();
+		} catch (LocadoraException e) {
+			assertThat(e.getMessage(), is("Usuario vazio"));
 		}
-		//FIM AÇÃO
 		
+		System.out.println("Forma robusta");
 	}
 	
 	@Test
-	public void testeLocacaoFilmeSemEstoque3() throws Exception {
-		
+	public void locacaoFilmeVazio() throws FilmeSemEstoqueException, LocadoraException {
 		//Cenário
-		LocacaoService service = new LocacaoService();
-		Filme filme = new Filme("A volta dos que não foram", 0, 8.0);
-		
 		Usuario user = new Usuario("Valdeci");
-		
-		exception.expect(Exception.class);
-		exception.expectMessage("Filme sem estoque");
 		//FIM CENÁRIO
-		
+		exception.expect(LocadoraException.class);
+		exception.expectMessage("Filme vazio");
 		//Ação
-		service.alugarFilme(user, filme);
+		service.alugarFilme(user, null);
 		
-		
-		//FIM AÇÃO
+		System.out.println("Forma Nova");
 	}
-//	
-//	@Test
-//	public void testeLocacaoFilmeSemEstoque3() throws Exception {
-//		
-//		//Cenário
-//		Filme filme = new Filme();
-//		filme.setNome("A volta dos que não foram");
-//		filme.setEstoque(0);
-//		filme.setPrecoLocacao(8.0);
-//		
-//		Usuario user = new Usuario();
-//		user.setNome("Valdeci");
-//		
-//		LocacaoService service = new LocacaoService();
-//		//FIM CENÁRIO
-//		
-//		//Ação
-//		exception.expect(Exception.class);
-//		exception.expectMessage("Filme sem estoqu");
-//		//FIM AÇÃO
-//	}
 }
 
